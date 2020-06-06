@@ -30,6 +30,10 @@ const fetchLatestStoriesAndRender = async () => {
       })
       .join("");
 
+    if (!navigator.onLine) {
+      showOfflineMessage();
+    }
+
     document.getElementById("hn-list").innerHTML = items;
   }
 };
@@ -47,15 +51,23 @@ const fetchStoryById = async (id) => {
   }
 };
 
-// tell user when we're offline/online
-window.addEventListener("offline", function (e) {
+const showOfflineMessage = () => {
   document.getElementById(
     "toast-container"
   ).innerHTML = `<div style="background-color: yellow; padding: 10px;">You're offline at the moment</div>`;
+};
+
+const hideOfflineMessage = () => {
+  document.getElementById("toast-container").innerHTML = "";
+};
+
+// tell user when we're offline/online
+window.addEventListener("offline", function (e) {
+  showOfflineMessage();
 });
 
 window.addEventListener("online", function (e) {
-  document.getElementById("toast-container").innerHTML = "";
+  hideOfflineMessage();
 });
 
 fetchLatestStoriesAndRender();

@@ -18,12 +18,25 @@ self.addEventListener("fetch", (event) => {
   console.log("👷‍♀️ Intercepting request");
   event.respondWith(
     // Note that access to the request lets you change caching strategies based on things like
-    // resource type or path or anything else.
+    // resource type or path or anything
     caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
+      if (event.request.url.includes("/hacker-news/")) {
+        // specific caching strategy for the API: network first then cache
+        if (navigator.onLine) {
+          return fetch(event.request).then((response) => {
+            console.log("👷‍♀️ Caching API request");
+            return cache.put(event.request, response).then(() => response);
+          });
+        } else if (cachedResponse) {
+          return cachedResponse;
+        }
+      } else {
+        // for everything else cache first then network
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+        return fetch(event.request);
       }
-      return fetch(event.request);
     })
   );
 });
